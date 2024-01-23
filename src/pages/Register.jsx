@@ -1,61 +1,104 @@
-import * as React from "react";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Formik } from "formik";
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import LockIcon from "@mui/icons-material/Lock";
+import image from "../assets/register.jpg";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import { Link, useNavigate } from "react-router-dom";
 import RegisterForm, { registerSchema } from "../components/auth/RegisterForm";
+import { Formik } from "formik";
 import useAuthCalls from "../hooks/useAuthCalls";
+import { useSelector } from "react-redux";
 
-
-const defaultTheme = createTheme();
-
-export default function Register() {
-
-  const {register} = useAuthCalls()
+const Register = () => {
+  const { register } = useAuthCalls();
+  const navigate= useNavigate()
+  const {user}=useSelector(state=>state.auth)
+  console.log(user)
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "#0c0c0c" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign Up
+    <Container maxWidth="lg">
+      <Grid
+        container
+        justifyContent="center"
+        direction="row-reverse"
+        rowSpacing={{ sm: 3 }}
+        sx={{
+          height: "100vh",
+          p: 2,
+        }}
+      >
+        <Grid item xs={12}>
+          <Typography variant="h3" color="primary" align="center">
+            WARSHIP BLOG
           </Typography>
+        </Grid>
+
+        <Grid item xs={12} sm={10} md={6}>
+          <Avatar
+            sx={{
+              backgroundColor: "secondary.light",
+              m: "auto",
+              width: 40,
+              height: 40,
+            }}
+          >
+            <LockIcon size="30" />
+          </Avatar>
+          <Typography
+            variant="h4"
+            align="center"
+            mb={2}
+            color="secondary.light"
+          >
+            Register
+          </Typography>
+
           <Formik
-          initialValues={{
-            username: "",
-            password: "",
-            email: "",
-            firstName: "",
-            lastName: "",
-            image: "",
-            city: "",
-            bio: "",
+            initialValues={{
+              username: "",
+              password: "",
+              email: "",
+              firstName: "",
+              lastName: "",
+              image:"",
+              city:"",
+              bio:"",
+            }}
+            validationSchema={registerSchema}
+            onSubmit={(values, actions) => {
+              console.log(values)
+              register(values);
+              actions.resetForm();
+              actions.setSubmitting(false);
+            }}
+            component={(props) => <RegisterForm {...props} />}
+          ></Formik>
+
+          <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Link to="/login">Do you have an account?</Link>
+          </Box>
+        </Grid>
+
+        <Grid
+          item
+          xs={0}
+          sm={7}
+          md={6}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          validationSchema={registerSchema}
-          onSubmit={(values, actions) => {
-            register(values);
-            actions.resetForm();
-            actions.setSubmitting(false);
-          }}
-          component={(props) => <RegisterForm {...props} />}
         >
-        </Formik>
-        </Box>
-      </Container>
-    </ThemeProvider>
+          <Container>
+            <img src={image} alt="" width={"100%"} />
+          </Container>
+        </Grid>
+      </Grid>
+    </Container>
   );
-}
+};
+
+export default Register;

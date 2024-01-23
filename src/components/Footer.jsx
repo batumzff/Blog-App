@@ -21,12 +21,15 @@ export default function ColorInversionFooter() {
       invertedColors
       sx={{
         backgroundColor:"#482973",
-        position:"absolute",
-        bottom:"0",
-        width:"100%",
-        flexGrow: 1,
-        p: 2,
-        borderRadius: { xs: 0, sm: 'sm' },
+        position: "static",
+        bottom: "0",
+        width: "100%",
+        height: "60px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: { xs: 0, sm: '8px 8px 0 0' },
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
