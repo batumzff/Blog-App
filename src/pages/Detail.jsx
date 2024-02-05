@@ -21,6 +21,8 @@ import { CommentForm } from "../components/blog/CommentForm";
 import useBlogCalls from "../hooks/useBlogCalls";
 import { CloudDone } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
+import { DeleteModal } from "../components/blog/DeleteModal";
+import { UpdateModal } from "../components/blog/UpdateModal";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -34,22 +36,68 @@ const ExpandMore = styled((props) => {
 }));
 
 const Detail = () => {
-  const { getBlogs, blogLikes } = useBlogCalls();
-  const { blogsDetail } = useSelector((state) => state.blog);
-  console.log(blogsDetail);
-  const { comments, _id } = blogsDetail;
   const { id } = useParams();
-  console.log(id);
+  // console.log(id); //? blog detail id
   const { getBlogsDetail } = useBlogCalls();
-  const {user}= useSelector((state)=>state.auth)
-  const person= user._id
-  console.log(person)
   useEffect(() => {
     getBlogsDetail(id);
   }, []);
 
+const {blogsDetail}= useSelector(state=>state.blog)
+console.log(blogsDetail)
+  const {
+    _id,
+    userId,
+    categoryId,
+    title,
+    content,
+    image,
+    isPublish,
+    comments,
+  } = blogsDetail;
+
+
+  //? MODAL KISMININ STATELERİ
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  //???????????????????????????????????????????????????????????????????
+
+  //! UPDATE MODAL KISMININ STATELERİ
+  const [openUpdate, setOpenUpdate] = React.useState(false);
+  const handleOpenUpdate = () => setOpenUpdate(true);
+  const emptyState = {
+    _id: "",
+    userId: "",
+    categoryId: "",
+    title: "",
+    content: "",
+    image: "",
+    isPublish: "",
+  };
+  const initialState = {
+    _id: _id,
+    userId: userId?._id,
+    categoryId: categoryId?._id,
+    title: title,
+    content: content,
+    image: image,
+    isPublish: isPublish,
+  };
+  const [info, setInfo] = React.useState(emptyState);
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  const { getBlogs, blogLikes } = useBlogCalls();
+
+  // console.log(blogsDetail);
+
+  const author = userId?._id;
+
+  const { user } = useSelector((state) => state.auth);
+  // console.log(author);
+  const person = user?._id;
+  // console.log(person);
+
   const blogCardLike = blogsDetail.likes;
-  console.log(blogCardLike);
+  // console.log(blogCardLike);
   const [expanded, setExpanded] = React.useState(false);
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -58,7 +106,6 @@ const Detail = () => {
     blogLikes(id);
     getBlogsDetail(id);
     getBlogs(1, 10);
-
   };
 
   return (
@@ -103,9 +150,12 @@ const Detail = () => {
                 backgroundColor: "rgba(0, 255, 0, 0.2)",
                 color: "red",
               },
-             
             }}
-             style={blogCardLike?.includes(person) ? {color:"red"}: {color:"black"}}
+            style={
+              blogCardLike?.includes(person)
+                ? { color: "red" }
+                : { color: "black" }
+            }
           />
           <span> {blogsDetail.likesNumber} </span>
         </IconButton>
@@ -138,19 +188,6 @@ const Detail = () => {
           />
           <span>{blogsDetail.countOfVisitors}</span>
         </IconButton>
-        <Button
-          sx={{
-            color: "white",
-            "&:hover": {
-              backgroundColor: "rgba(0, 255, 0, 0.2)",
-              color: "red",
-            },
-          }}
-          variant="contained"
-          aria-label="show more"
-        >
-          READ MORE
-        </Button>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
@@ -160,6 +197,60 @@ const Detail = () => {
           ))}
         </CardContent>
       </Collapse>
+      {person == author && (
+        <div
+          style={{
+            display: "flex",
+            gap: "3rem",
+            justifyContent: "center",
+            alignItems:"center",
+            margin: "1rem",
+          }}
+        >
+          {" "}
+          <Button
+            sx={{
+              color: "white",
+              backgroundColor: "green",
+              "&:hover": {
+                backgroundColor: "rgba(0, 255, 0, 0.2)",
+                color: "red",
+              },
+            }}
+            variant="contained"
+            onClick={()=>{
+              handleOpenUpdate()
+              setInfo(initialState)
+            }}
+          >
+            UPDATE BLOG
+          </Button>
+          <Button
+            sx={{
+              color: "white",
+              backgroundColor: "red",
+              "&:hover": {
+                backgroundColor: "rgba(0, 255, 0, 0.2)",
+                color: "red",
+              },
+            }}
+            variant="contained"
+            // onClick={()=>deleteBlog(id)}
+            onClick={handleOpen}
+          >
+            DELETE BLOG
+          </Button>
+          <DeleteModal open={open} setOpen={setOpen} id={id} />
+          <UpdateModal
+            open={openUpdate}
+            setOpen={setOpenUpdate}
+            id={id}
+            info={info}
+            setInfo={setInfo}
+            emptyState={emptyState}
+          />
+        </div>
+      )}
     </Card>
   );
 };

@@ -1,21 +1,19 @@
-import axios from 'axios'
-import { useSelector} from "react-redux"
+import axios from "axios";
+import React from "react";
+import { useSelector } from "react-redux";
 
 const useAxios = () => {
-    const { token } = useSelector(state => state.auth)
-    console.log(process.env.REACT_APP_BASE_URL);
+  const { token } = useSelector((state) => state.auth);
+  // console.log(token)
+  const axiosWithToken = axios.create({
+    baseURL: `${process.env.REACT_APP_BASE_URL}`,
+    headers: { Authorization:`Token ${token}` },
+  });
 
-    const axiosPublic = axios.create({
-        baseURL: `${process.env.REACT_APP_BASE_URL}`
-        // baseURL: 'https://35153.fullstack.clarusway.com'
-    })
-    
-    const axiosWithToken = axios.create({
-        baseURL: `${process.env.REACT_APP_BASE_URL}`,
-        headers: {Authorization : `Token ${token}`}
-    })
+  const axiosPublic = axios.create({
+    baseURL: `${process.env.REACT_APP_BASE_URL}`,
+  });
+  return { axiosWithToken, axiosPublic };
+};
 
-    return  {axiosPublic, axiosWithToken }
-}
-
-export default useAxios
+export default useAxios;

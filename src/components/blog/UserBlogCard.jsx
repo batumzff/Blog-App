@@ -1,23 +1,30 @@
 import * as React from "react";
+import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
 import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
+import Collapse from "@mui/material/Collapse";
+import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
+import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import ShareIcon from "@mui/icons-material/Share";
 import AddCommentIcon from "@mui/icons-material/AddComment";
+
 import { Button } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import useBlogCalls from "../../hooks/useBlogCalls";
 import { useNavigate } from "react-router-dom";
+import useAxios from "../../hooks/useAxios";
 import { useSelector } from "react-redux";
 
-export const BlogCard = ({
+export const UserBlogCard = ({
   _id,
-  // userId,
-  // categoryId,
+//   userId,
+//   categoryId,
   comments,
   content,
   image,
@@ -29,25 +36,25 @@ export const BlogCard = ({
 }) => {
   const navigate = useNavigate();
   const { getBlogsDetail } = useBlogCalls();
-  const { blogs } = useSelector((state) => state.blog);
+  const { userBlogs } = useSelector((state) => state.blog);
   const { user } = useSelector((state) => state.auth);
   const person = user._id;
-  // console.log(person);
+//   console.log(person);
 
   const handleDetail = (id) => {
-    // console.log(id);
+    console.log(id);
     getBlogsDetail(id);
     navigate(`/detail/${id}`);
   };
   // console.log(_id)
   // console.log(blogs);
-  const blogCardLike = blogs.filter((blog) => blog._id == _id);
-  // console.log(blogCardLike[0].likes)
-  // console.log(blogCardLike)
+  const blogCardLike = userBlogs.filter((blog) => blog._id == _id);
+//   console.log(blogCardLike[0].likes)
+
   const commentsNumber = comments.length;
   const likesNumber = likes.length;
   const fav = blogCardLike[0].likes;
-  // console.log(fav);
+//   console.log(fav);
 
 
   return (

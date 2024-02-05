@@ -1,5 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useAxios from "./useAxios";
 import {
   fetchFail,
@@ -7,26 +7,37 @@ import {
   getBlogsSuccess,
   getBlogsDetailSucces,
   getBlogsLikesDetail,
-  getCategoriesSlice
+  getCategoriesSlice,
+  getUserBlogsSuccess,
+  getBlogsTotalRecord,
+  deleteBlogSucces
 } from "../features/blogSlice";
 import { useNavigate } from "react-router-dom";
+import { toastErrorNotify, toastSuccessNotify } from "../helper/ToastNotify";
+
 
 const useBlogCalls = () => {
+  const { user } = useSelector((state) => state.auth);
+  const { currentPage} = useSelector((state) => state.blog);
+  const userId = user._id;
   const dispatch = useDispatch();
   const { axiosWithToken, axiosPublic } = useAxios();
   const navigate = useNavigate();
   const getBlogs = async (page, limit) => {
     dispatch(fetchStart());
     try {
-      const { data } = await axiosPublic.get(
+      const  data  = await axiosPublic.get(
         `/blogs/?page=${page}&limit=${limit}`
       );
-      dispatch(getBlogsSuccess(data));
+      dispatch(getBlogsSuccess(data.data));
+  
     } catch (error) {
       console.log(error);
       dispatch(fetchFail());
     }
   };
+
+
 
   const getBlogsDetail = async (id) => {
     dispatch(fetchStart());
@@ -54,15 +65,77 @@ const useBlogCalls = () => {
     const { data } = await axiosWithToken.post(`/blogs/${blogId}/postLike`);
     console.log(data);
     dispatch(getBlogsLikesDetail(data));
-    getBlogsDetail(blogId)
-    getBlogs(1, 10);
+    getUserBlogs(userId); // My blogs sayfasında like yaptığımda çalışması için yazdım
+    getBlogsDetail(blogId);
+    getBlogs(currentPage, 5);
   };
   const getCategories = async () => {
-    const { data } = await axiosPublic.get(`/categories`);
-    dispatch(getCategoriesSlice(data))
+    try {
+      const { data } = await axiosPublic.get(`/categories`);
+      dispatch(getCategoriesSlice(data));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const postBlog = async (info) => {
+    try {
+      const { data } = await axiosWithToken.post(`/blogs/`, info);
+      console.log(data);
+      toastSuccessNotify("Post Blog Success!")
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const getUserBlogs = async (id) => {
+    dispatch(fetchStart());
+    try {
+      const { data } = await axiosPublic.get(
+        `/blogs/?author=${id}`
+      );
+      dispatch(getUserBlogsSuccess(data));
+    } catch (error) {
+      console.log(error);
+      dispatch(fetchFail());
+    }
+  };
+  const deleteBlog = async (blogId) => {
+    try {
+      const { data } = await axiosWithToken.delete(`/blogs/${blogId}`);
+      console.log(data);
+      // dispatch(deleteBlogSucces())
+      toastSuccessNotify("Delete Blog Success!")
+      getBlogs(1, 10);
+      navigate("/")
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  return { getBlogs, getBlogsDetail, postComments, blogLikes, getCategories };
+  const updateBlog = async (blogId,info) => {
+    try {
+      const { data } = await axiosWithToken.put(`/blogs/${blogId}`,info);
+      // console.log(data);
+      // dispatch(deleteBlogSucces())
+      toastSuccessNotify("Update Blog Success!")
+      getBlogs(1, 16);
+      navigate("/")
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  return {
+    getBlogs,
+    getBlogsDetail,
+    postComments,
+    blogLikes,
+    getCategories,
+    postBlog,
+    getUserBlogs,
+    deleteBlog,
+    updateBlog
+  };
 };
 
 export default useBlogCalls;

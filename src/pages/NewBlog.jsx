@@ -11,121 +11,146 @@ import {
   Select,
   Stack,
   TextField,
-  TextareaAutosize,
   Typography,
 } from "@mui/material";
 
 const NewBlog = () => {
-  const { getCategories } = useBlogCalls();
+  const { getCategories, postBlog } = useBlogCalls();
   const { categories } = useSelector((state) => state.blog);
-  const [info, setInfo] = useState({});
+  const initialState = {
+    title: "",
+    content: "",
+    image: "",
+    categoryId: "",
+    isPublish: "",
+  };
+  const [info, setInfo] = useState(initialState);
+  const { user } = useSelector((state) => state.auth);
+  console.log(user);
+
   useEffect(() => {
     getCategories();
   }, []);
-  console.log(categories);
+  // console.log(categories);
   const handleChange = (e) => {
     // const { name, value } = e.target
     // setInfo({ ...info, [name]: value })
     setInfo({ ...info, [e.target.name]: e.target.value });
   };
-  const handleSubmit = () => {};
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(info);
+    postBlog(info);
+    setInfo(initialState)
+  };
   const published = [
     { id: 1, name: "Please Choose", value: "" },
     { id: 2, name: "Draft", value: false },
     { id: 3, name: "Published", value: true },
   ];
   return (
-    <Stack style={{minHeight:"100vh"}} display={"flex"} alignItems={"center"} marginTop={"3rem"} >
+    <Stack display={"flex"} alignItems={"center"} marginTop={"3rem"}>
       <Paper
         elevation={7}
         style={{
           width: "40%",
-          height: "80vh",
+          maxWidth: "500px",
+          height: "auto",
           // display: "flex",
           // justifyContent: "center",
           // alignItems: "center",
           boxShadow: "8px 10px 30px black",
         }}
       >
-        <Typography variant="h4" color="gray" mt={4}>
+        <Typography variant="h4" color="gray" mt={4} padding={"1rem"}>
           New Blog
         </Typography>
-        <Box>
-          <Box
-            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-            component="form"
-            onSubmit={handleSubmit}
-          >
-            <TextField
-              label="Title"
-              name="title"
-              id="title"
-              type="text"
-              variant="outlined"
-              value={info.name}
+
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            padding: "1rem",
+            margin: "auto",
+          }}
+          component="form"
+          onSubmit={handleSubmit}
+        >
+          <TextField
+            label="Title"
+            name="title"
+            id="title"
+            type="text"
+            variant="outlined"
+            value={info.title || ""}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="Image URL"
+            name="image"
+            id="image"
+            type="url"
+            variant="outlined"
+            value={info.image || ""}
+            onChange={handleChange}
+            required
+          />
+          <FormControl fullWidth>
+            <InputLabel id="categoryId">Category</InputLabel>
+            <Select
+              labelId="categoryId"
+              id="categoryId"
+              name="categoryId"
+              value={info.categoryId || ""}
+              label="Category"
               onChange={handleChange}
-              required
-            />
-            <TextField
-              label="Image URL"
-              name="image"
-              id="image"
-              type="url"
-              variant="outlined"
-              value={info.image}
-              onChange={handleChange}
-              required
-            />
-            <FormControl fullWidth>
-              <InputLabel id="categoryId">Category</InputLabel>
-              <Select
-                labelId="categoryId"
-                id="categoryId"
-                name="categoryId"
-                value={info.categoryId}
-                label="Category"
-                onChange={handleChange}
-              >
-                {categories.map((item) => (
-                  <MenuItem key={item._id} value={item._id}>
+            >
+              {categories.map((item) =>
+                user ? (
+                  <MenuItem key={item._id} value={item._id || ""}>
                     {item.name}
                   </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel id="isPublish">Status</InputLabel>
-              <Select
-                labelId="isPublish"
-                id="isPublish"
-                name="isPublish"
-                value={info.status}
-                label="Please Choose..."
-                onChange={handleChange}
-              >
-                {published.map((item) => (
-                  <MenuItem key={item.id} value={item.value}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              label="Content"
-              name="content"
-              id="content"
-              type="textArea"
-              variant="outlined"
-              value={info.content}
+                ) : (
+                  <MenuItem key={item._id}></MenuItem>
+                )
+              )}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="isPublish">Status</InputLabel>
+            <Select
+              labelId="isPublish"
+              id="isPublish"
+              name="isPublish"
+              value={info.isPublish}
+              label="Please Choose..."
               onChange={handleChange}
-              required
-              rows={4}
-              multiline
-            />
-            <Button type="submit" variant="contained" size="large">
-              {info._id ? "Update Firm" : "Add Firm"}
-            </Button>
-          </Box>
+            >
+              {published.map((item) => (
+                <MenuItem key={item.id} value={item.value}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            label="Content"
+            name="content"
+            id="content"
+            type="textArea"
+            variant="outlined"
+            value={info.content || ""}
+            onChange={handleChange}
+            required
+            rows={4}
+            multiline
+          />
+          <Button type="submit" variant="contained" size="large">
+            ADD BLOG
+          </Button>
+          
         </Box>
       </Paper>{" "}
     </Stack>

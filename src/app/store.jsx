@@ -10,16 +10,16 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
-} from "redux-persist";
-import storage from "redux-persist/lib/storage/session"; // defaults to localStorage for web
+} from 'redux-persist'
+import storage from "redux-persist/lib/storage/session"
 
 const persistConfig = {
-  key: "root",
+  key: 'root',
   storage,
-};
+}
 
-const persistedReducer = persistReducer(persistConfig, authReducer);
-// const persistedBlog = persistReducer(persistBlog, );
+const persistedReducer = persistReducer(persistConfig, authReducer)
+
 const store = configureStore({
   reducer: {
     auth: persistedReducer,
@@ -27,11 +27,13 @@ const store = configureStore({
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
-    }),
+  getDefaultMiddleware({
+    serializableCheck: {
+      ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+    },
+  }),
 });
-export const persistor = persistStore(store);
+
+export const persistor = persistStore(store)
+
 export default store;
