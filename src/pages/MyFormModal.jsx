@@ -1,22 +1,37 @@
+import React, { useEffect, useState } from "react";
+import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
-import { modalStyle } from "../styles/globalStyles";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import Button from "@mui/material/Button";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import TextareaAutosize from "@mui/material/TextareaAutosize";
-import useBlogCalls from "../hooks/useBlogCalls";
 import { useNavigate } from "react-router-dom";
+import useBlogCalls from "../hooks/useBlogCalls";
+import { modalStyle } from "../styles/globalStyles";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextareaAutosize,
+} from "@mui/material";
 
-export default function NewBlog() {
-  const { categories } = useSelector((state) => state.blog);
+const MyFormModal = ({ blogDetails, open, setOpen }) => {
   const navigate = useNavigate();
 
-  const { getCategories, postBlog } = useBlogCalls();
+  const { getCategories, putBlog } = useBlogCalls();
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    putBlog(formData._id, formData);
+    handleClose();
+    console.log(formData)
+  };
+  const { categories } = useSelector((state) => state.blog);
+
   useEffect(() => {
     getCategories();
   }, []);
@@ -24,13 +39,28 @@ export default function NewBlog() {
   const [status, setStatus] = useState(["Draft", "Published"]);
 
   const [formData, setFormData] = useState({
-    title: "",
-    image: "",
+    title: blogDetails?.title,
+    image: blogDetails?.imageUrl,
     categoryId: "",
     isPublished: true,
     content: "",
-    status: "Draft",
+    _id: blogDetails?.blogId,
+    userId: blogDetails?.userId,
+    isPublished: true,
   });
+console.log(formData);
+  useEffect(() => {
+    setFormData({
+      title: blogDetails?.title,
+      image: blogDetails?.image,
+      categoryId: "",
+      isPublished: true,
+      content: "",
+      _id: blogDetails?.blogId,
+      userId: blogDetails?.userId,
+      isPublished: true,
+    });
+  }, [blogDetails]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,15 +70,13 @@ export default function NewBlog() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    postBlog(formData);
-    navigate("/");
-  };
-
   return (
-    <div>
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
       <Box sx={modalStyle}>
         <Box
           sx={{ display: "flex", flexDirection: "column", gap: 2 }}
@@ -60,7 +88,7 @@ export default function NewBlog() {
             name="title"
             type="text"
             variant="outlined"
-            value={formData.title}
+            value={formData?.title}
             onChange={handleChange}
             required
           />
@@ -69,7 +97,7 @@ export default function NewBlog() {
             name="image"
             type="text"
             variant="outlined"
-            value={formData.image}
+            value={formData?.image}
             onChange={handleChange}
             required
           />
@@ -79,9 +107,10 @@ export default function NewBlog() {
               labelId="category"
               id="category"
               name="categoryId"
-              value={formData.categoryId}
+              value={formData?.categoryId}
               label="Category"
               onChange={handleChange}
+              required
             >
               {categories.map((item) => (
                 <MenuItem key={item.name} value={item._id}>
@@ -96,7 +125,7 @@ export default function NewBlog() {
             <Select
               labelId="status"
               name="status"
-              value={formData.status}
+              value={formData?.status}
               label="Status"
               onChange={handleChange}
             >
@@ -112,15 +141,18 @@ export default function NewBlog() {
             minRows={6}
             name="content"
             placeholder="Enter your text here..."
-            value={formData.content}
+            value={formData?.content}
             onChange={handleChange}
             style={{ width: "100%" }}
+            required
           />
           <Button type="submit" variant="contained" size="large">
-            NEW BLOG
+            UPDATE BLOG
           </Button>
         </Box>
       </Box>
-    </div>
+    </Modal>
   );
-}
+};
+
+export default MyFormModal;

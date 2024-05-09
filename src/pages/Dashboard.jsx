@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import useBlogCalls from "../hooks/useBlogCalls";
 import { useSelector } from "react-redux";
-import { BlogCard, Card } from "../components/blog/BlogCard";
+import  BlogCard  from "../components/blog/BlogCard";
 import { Pagination, Stack } from "@mui/material";
 
 const Dashboard = () => {

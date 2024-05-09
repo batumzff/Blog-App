@@ -1,129 +1,134 @@
 import * as React from "react";
 import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardMedia from "@mui/material/CardMedia";
-import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
-import IconButton from "@mui/material/IconButton";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import AddCommentIcon from "@mui/icons-material/AddComment";
-import { Button } from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditIcon from "@mui/icons-material/Edit";
+import { btnStyle } from "../../styles/globalStyles";
 import useBlogCalls from "../../hooks/useBlogCalls";
-import { useNavigate } from "react-router-dom";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import CommentIcon from "@mui/icons-material/Comment";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Button from "@mui/material/Button";
 
-export const BlogCard = ({
-  _id,
-  // userId,
-  // categoryId,
-  comments,
-  content,
-  image,
-  likes,
-  title,
-  createdAt,
-  countOfVisitors,
-  blogLike,
-}) => {
+
+
+export default function BlogCard({ blog ,page }) {
+  const { deleteBlog ,likeBlog } = useBlogCalls();
+
+  const { id } = useSelector((state) => state.auth);
+  const { currentPage } = useSelector((state) => state.blog);
+ console.log(currentPage);
   const navigate = useNavigate();
-  const { getBlogsDetail } = useBlogCalls();
-  const { blogs } = useSelector((state) => state.blog);
-  const { user } = useSelector((state) => state.auth);
-  const person = user._id;
-  // console.log(person);
-
-  const handleDetail = (id) => {
-    // console.log(id);
-    getBlogsDetail(id);
-    navigate(`/detail/${id}`);
+  
+//  console.log(blog)
+  const handleReadMoreClick = () => {
+    navigate(`/BlogDetails/${blog._id}`); // Assuming your "BlogDetails" route expects a parameter named "blogId"
   };
-  // console.log(_id)
-  // console.log(blogs);
-  const blogCardLike = blogs.filter((blog) => blog._id == _id);
-  // console.log(blogCardLike[0].likes)
-  // console.log(blogCardLike)
-  const commentsNumber = comments.length;
-  const likesNumber = likes.length;
-  const fav = blogCardLike[0].likes;
-  // console.log(fav);
+  const truncateContent = (content, maxWords) => {
+    const words = content.split(" ");
+    if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(" ") + "...";
+    } else {
+      return content;
+    }
+  };
 
+  const handleLike = () => {
+    likeBlog(blog._id ,currentPage)
+    console.log(blog._id);
+    console.log(currentPage);
+    
+
+    
+  };
+
+  const fav  = (blog.likes.includes(id))
+  
+  const handleDelete = () => {
+    deleteBlog(blog._id ,page);
+  };
 
   return (
-    <Card sx={{ maxWidth: 345 }}>
-      <CardHeader
-        title={title}
-        subheader={`Published Date:${new Date(createdAt).toLocaleDateString()}`}
-      />
-      <CardMedia component="img" height="194" image={image} alt="Paella dish" />
+    <Card
+      sx={{
+        maxWidth: 345,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "300px",
+        height: "400px",
+        p: 2,
+      }}
+    >
       <CardContent>
+        <Typography gutterBottom variant="h5" component="div">
+          {blog.title}
+        </Typography>
         <Typography variant="body2" color="text.secondary">
-          {`${content.slice(0, 100)}...`}
+          PulieshedDate : {blog.updatedAt}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Content : {truncateContent(blog.content, 1)}
         </Typography>
       </CardContent>
-      <CardActions
-        disableSpacing
-        sx={{ display: "flex", justifyContent: "space-around" }}
-      >
-        <Button
-          aria-label="add to favorites"
-          onClick={() => {
-            blogLike(_id);
-          }}
-        >
-          <FavoriteIcon
-            sx={{
-              color: "black",
-              "&:hover": {
-                backgroundColor: "rgba(0, 255, 0, 0.2)",
-                color: "red",
-              },
-            }}
-            style={fav.includes(person) ? { color: "red" } : { color: "black" }}
-          />
+      <CardMedia
+        component="img"
+        alt="error"
+        height="140"
+        image={blog.image}
+        sx={{ objectFit: "contain" }}
+      />
 
-          <span> {likesNumber} </span>
-        </Button>
-        <IconButton aria-label="share">
-          <AddCommentIcon
-            sx={{
-              color: "black",
-              "&:hover": {
-                backgroundColor: "rgba(0, 255, 0, 0.2)",
-                color: "red",
-              },
+      <CardActions
+        sx={{
+          width: "100%",
+          justifyContent: "space-between",
+          paddingLeft: "16px",
+          paddingRight: "16px",
+        }}
+      >
+         <div style={{ display :" flex", flexDirection: "column",justifyContent: "center" , alignItems: "center", gap: "6px" }}>
+          <Button
+            onClick={handleReadMoreClick}
+            variant="contained"
+            style={{
+              width: "100%",
+              backgroundColor: "lightgreen",
+              borderRadius: "7px",
             }}
-          />
-          <span>{commentsNumber}</span>
-        </IconButton>
-        <IconButton>
-          <VisibilityIcon
-            sx={{
-              color: "black",
-              "&:hover": {
-                backgroundColor: "rgba(0, 255, 0, 0.2)",
-                color: "red",
-              },
-            }}
-          />
-          <span>{countOfVisitors}</span>
-        </IconButton>
-        <Button
-          sx={{
-            color: "white",
-            "&:hover": {
-              backgroundColor: "rgba(0, 255, 0, 0.2)",
-              color: "red",
-            },
-          }}
-          variant="contained"
-          onClick={() => handleDetail(_id)}
-          aria-label="show more"
-        >
-          READ MORE
-        </Button>
+          >
+            Read More
+          </Button>
+          {blog.userId === id && (
+            <Button
+              onClick={handleDelete}
+              variant="contained"
+              style={{
+                width: "100%",
+                backgroundColor: "red",
+                margin: "5px",
+                borderRadius: "7px",
+              }}
+            >
+              DELETE
+            </Button>
+          )}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <FavoriteIcon sx={btnStyle} onClick={handleLike} style={fav ? { color: "red" } : { color: "black" }}/>
+          {blog.likes.length}
+          <CommentIcon sx={btnStyle} onClick={() => {}} />
+          {blog.comments.length}
+          <VisibilityIcon sx={btnStyle} onClick={() => {}} />
+          {blog.countOfVisitors}
+        </div>
       </CardActions>
     </Card>
   );
-};
+}
